@@ -624,6 +624,39 @@ impl AgonMachine {
         self.spi_sdcard.set_image_file(file);
     }
 
+    pub fn gpios(&self) -> &Arc<gpio::GpioSet> {
+        &self.gpios
+    }
+
+    pub fn reset_cpu(&mut self, cpu: &mut Cpu) {
+        match self.ram_init {
+            RamInit::Random => {
+                for i in 0..self.mem_external.len() {
+                    self.mem_external[i as usize] = rand::thread_rng().gen_range(0..=255);
+                }
+
+                for i in 0..ONCHIP_RAM_SIZE {
+                    self.mem_internal[i as usize] = rand::thread_rng().gen_range(0..=255);
+                }
+            }
+            RamInit::Zero => {}
+        }
+
+        self.load_mos();
+        cpu.state.set_pc(0);
+    }
+
+    pub fn run_for_cycles(&mut self, cpu: &mut Cpu, cycles_to_run: u64) {
+        let mut cycle: u64 = 0;
+        while cycle < cycles_to_run && !self.is_paused() {
+            self.execute_instruction(cpu);
+            if self.cycle_counter.get() >= self.interrupt_precision {
+                cycle += self.apply_elapsed_cycles() as u64;
+                self.do_interrupts(cpu);
+            }
+        }
+    }
+
     fn load_mos(&mut self) {
         let code = match std::fs::read(&self.mos_bin) {
             Ok(data) => data,

@@ -1,5 +1,5 @@
 [workspace]
-members = ["agon-light-emulator-debugger", "agon-ez80-emulator", "agon-cli-emulator"]
+members = ["agon-light-emulator-debugger", "agon-ez80-emulator", "agon-cli-emulator", "agon-libretro-core"]
 
 [workspace.package]
 version = "1.2.2"
@@ -40,3 +40,4 @@ raw_tty = "0.1.0"
 agon-ez80-emulator = { path = "agon-ez80-emulator" }
 agon-light-emulator-debugger = { path = "agon-light-emulator-debugger" }
 agon-cli-emulator = { path = "agon-cli-emulator" }
+agon-libretro-core = { path = "agon-libretro-core" }

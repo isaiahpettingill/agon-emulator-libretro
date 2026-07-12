@@ -1,0 +1,15 @@
+[package]
+name = "agon-libretro-core"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "agon_libretro"
+crate-type = ["cdylib"]
+
+[dependencies]
+agon-ez80-emulator = { workspace = true }
+ez80 = "0.5.0"
+libretro-backend = "0.2.1"
