@@ -1,7 +1,7 @@
 all: check vdp cargo
 
 libretro: check
-	cargo build -r -p agon-libretro-core
+	$(MAKE) -f Makefile.libretro
 
 COMPILER := $(filter g++ clang,$(shell $(CXX) --version))
 UNAME_S := $(shell uname)

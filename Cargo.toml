@@ -1,5 +1,6 @@
 [workspace]
 members = ["agon-light-emulator-debugger", "agon-ez80-emulator", "agon-cli-emulator", "agon-libretro-core"]
+default-members = ["agon-libretro-core"]
 
 [workspace.package]
 version = "1.2.2"

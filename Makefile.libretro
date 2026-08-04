@@ -1,0 +1,63 @@
+.PHONY: all release debug clean
+
+# Libretro buildbot sets platform, ARCH, and sometimes CC.
+ifeq ($(strip $(platform)),)
+platform := unix
+ifeq ($(OS),Windows_NT)
+platform := win
+else ifeq ($(shell uname -s),)
+platform := win
+else ifneq ($(findstring Darwin,$(shell uname -s)),)
+platform := osx
+else ifneq ($(findstring MINGW,$(shell uname -s)),)
+platform := win
+endif
+endif
+
+RUST_TARGET :=
+ifeq ($(platform),osx)
+	ifneq (,$(filter arm64 aarch64,$(ARCH)))
+		RUST_TARGET := aarch64-apple-darwin
+	else ifeq ($(ARCH),x86_64)
+		RUST_TARGET := x86_64-apple-darwin
+	endif
+else ifeq ($(platform),windows)
+	ifeq ($(ARCH),x86_64)
+		RUST_TARGET := x86_64-pc-windows-gnu
+	endif
+endif
+
+CARGO := cargo build -p agon-libretro-core
+TARGET_DIR := target
+ifneq ($(RUST_TARGET),)
+	CARGO += --target $(RUST_TARGET)
+	TARGET_DIR := target/$(RUST_TARGET)
+	UPPER_TARGET := $(shell echo $(RUST_TARGET) | tr 'a-z-' 'A-Z_')
+	ifneq ($(CC),)
+		export CARGO_TARGET_$(UPPER_TARGET)_LINKER := $(CC)
+	endif
+endif
+
+ifeq ($(platform),osx)
+	EXT := dylib
+	PREFIX := lib
+else ifneq (,$(filter win windows,$(platform)))
+	EXT := dll
+	PREFIX :=
+else
+	EXT := so
+	PREFIX := lib
+endif
+
+all: release
+
+release:
+	$(CARGO) --release
+	cp $(TARGET_DIR)/release/$(PREFIX)agon.$(EXT) agon_libretro.$(EXT)
+
+debug:
+	$(CARGO)
+	cp $(TARGET_DIR)/debug/$(PREFIX)agon.$(EXT) agon_libretro.$(EXT)
+
+clean:
+	rm -f agon_libretro.so agon_libretro.dylib agon_libretro.dll

@@ -1,0 +1,35 @@
+# Software Information
+display_name = "Agon Light (Fab Agon)"
+authors = "Tom Morton|Isaiah Pettingill"
+supported_extensions = "bin|bas|bbc"
+corename = "Fab Agon"
+license = "GPLv3"
+permissions = ""
+display_version = "1.2.2"
+categories = "Emulator"
+
+# Hardware Information
+manufacturer = "Olimex / The Byte Attic"
+systemname = "Agon Light"
+systemid = "agon_light"
+
+# Libretro Features
+supports_no_game = "true"
+savestate = "false"
+cheats = "false"
+input_descriptors = "false"
+memory_descriptors = "false"
+libretro_saves = "false"
+core_options = "false"
+load_subsystem = "false"
+hw_render = "false"
+needs_fullpath = "true"
+disk_control = "false"
+is_experimental = "true"
+database = "Agon Light"
+
+# Firmware / BIOS
+firmware_count = 0
+notes = "Agon Console8 MOS and VDP firmware are bundled. Place mos_console8.bin and the platform VDP library in system/agon to override the bundled versions."
+
+description = "Fab Agon emulates the Agon Light family of eZ80 computers. The experimental Libretro core boots the bundled Console8 MOS and VDP firmware, supports no-content startup, mounts content directories as the Agon SD card, and accepts keyboard input through the Libretro keyboard device."

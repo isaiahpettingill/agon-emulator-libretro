@@ -12,19 +12,35 @@ Otherwise, read the [guide to compiling Fab Agon Emulator](./docs/compiling.md)
 
 ### Libretro core
 
-Initialize the submodules, then build the core and userspace VDP firmware:
+Initialize the submodules, then build the core:
 
 ```sh
 git submodule update --init --recursive
 make libretro
 ```
 
-On Windows, the build writes `agon_libretro.dll`, `agon_libretro.info`, and
-`vdp_console8.dll` to `target/release/`. Install the core DLL in RetroArch's
-`cores` directory and the info file in `info`. Copy `vdp_console8.dll`,
-`firmware/mos_console8.bin`, `firmware/mos_console8.map`, and the contents of
-`sdcard` to `system/agon`. The default SD card includes BBC BASIC and
-`ez80asm`. The core can be started without content to boot directly into MOS.
+The build writes `agon_libretro.dll`, `agon_libretro.so`, or
+`agon_libretro.dylib` in the repository root. Install the library in
+RetroArch's `cores` directory and install `agon_libretro.info` in its `info`
+directory. The core bundles the Console8 MOS and VDP firmware and can start
+without content.
+
+For a useful SD card, copy the contents of `sdcard` to `system/agon`. This
+includes BBC BASIC and `ez80asm`. When content is selected, its parent
+directory is mounted as the SD card instead.
+
+Users can override the bundled firmware by placing `mos_console8.bin` and the
+platform VDP library (`vdp_console8.dll`, `vdp_console8.so`, or
+`vdp_console8.dylib`) in `system/agon`. Developers can also set
+`AGON_LIBRETRO_FIRMWARE`, `AGON_LIBRETRO_VDP`, and `AGON_LIBRETRO_SDCARD` to
+explicit paths.
+
+Libretro buildbot configuration is in `.gitlab-ci.yml`. It targets Windows
+x64, Linux x64, macOS x64, and macOS ARM64. The proposed `libretro-super`
+entries are documented in `docs/libretro-submission.md`.
+
+Bundled component copyrights and licenses are listed in
+`THIRD_PARTY_NOTICES.md`.
 
 
 ## Keyboard Shortcuts

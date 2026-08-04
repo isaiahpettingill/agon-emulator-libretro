@@ -14,6 +14,16 @@ const WIDTH: usize = 640;
 const HEIGHT: usize = 480;
 const CLOCKS_PER_FRAME: u64 = 18_432_000 / 60;
 const AUDIO_FRAMES_PER_VIDEO_FRAME: usize = 48_000 / 60;
+const BUNDLED_MOS: &[u8] = include_bytes!("../../firmware/mos_console8.bin");
+const BUNDLED_MOS_MAP: &[u8] = include_bytes!("../../firmware/mos_console8.map");
+const BUNDLED_VDP: &[u8] = include_bytes!(env!("AGON_BUNDLED_VDP"));
+
+#[cfg(target_os = "windows")]
+const VDP_FILENAME: &str = "vdp_console8.dll";
+#[cfg(target_os = "macos")]
+const VDP_FILENAME: &str = "vdp_console8.dylib";
+#[cfg(not(any(target_os = "windows", target_os = "macos")))]
+const VDP_FILENAME: &str = "vdp_console8.so";
 
 type VoidFn = unsafe extern "C" fn();
 type CopyFramebufferFn = unsafe extern "C" fn(*mut u32, *mut u32, *mut u8, *mut f32);
@@ -133,29 +143,56 @@ impl VdpApi {
             })
     }
 
-    fn candidates() -> Vec<PathBuf> {
+    fn bundled_path() -> Result<PathBuf, String> {
+        let directory = std::env::temp_dir().join("agon-libretro");
+        std::fs::create_dir_all(&directory).map_err(|error| {
+            format!(
+                "could not create bundled VDP directory {}: {error}",
+                directory.display()
+            )
+        })?;
+        let filename = format!(
+            "vdp_console8-{}.{}",
+            env!("AGON_BUNDLED_VDP_HASH"),
+            Path::new(VDP_FILENAME)
+                .extension()
+                .and_then(|extension| extension.to_str())
+                .unwrap_or("so")
+        );
+        let path = directory.join(filename);
+        let current_size = std::fs::metadata(&path).map(|metadata| metadata.len()).ok();
+        if current_size != Some(BUNDLED_VDP.len() as u64) {
+            std::fs::write(&path, BUNDLED_VDP).map_err(|error| {
+                format!(
+                    "could not extract bundled VDP to {}: {error}",
+                    path.display()
+                )
+            })?;
+        }
+        Ok(path)
+    }
+
+    fn candidates() -> Result<Vec<PathBuf>, String> {
         let mut paths = Vec::new();
         if let Some(path) = std::env::var_os("AGON_LIBRETRO_VDP") {
             paths.push(PathBuf::from(path));
         }
+        if let Some(system_directory) = libretro_backend::system_directory() {
+            paths.push(system_directory.join("agon").join(VDP_FILENAME));
+        }
         if let Ok(executable) = std::env::current_exe() {
             if let Some(directory) = executable.parent() {
-                paths.push(directory.join("vdp_console8.dll"));
-                paths.push(directory.join("cores").join("vdp_console8.dll"));
+                paths.push(directory.join(VDP_FILENAME));
+                paths.push(directory.join("cores").join(VDP_FILENAME));
             }
         }
-        if let Some(system_directory) = libretro_backend::system_directory() {
-            paths.push(system_directory.join("agon").join("vdp_console8.dll"));
-        }
-        paths.push(PathBuf::from("vdp_console8.dll"));
-        paths.push(PathBuf::from("target/release/vdp_console8.dll"));
-        paths.push(PathBuf::from("src/vdp/vdp_console8.so"));
-        paths
+        paths.push(Self::bundled_path()?);
+        Ok(paths)
     }
 
     fn load() -> Result<Self, String> {
         let mut errors = Vec::new();
-        for path in Self::candidates() {
+        for path in Self::candidates()? {
             let library = match unsafe { Library::new(&path) } {
                 Ok(library) => library,
                 Err(error) => {
@@ -299,7 +336,30 @@ impl AgonLibretroCore {
                 return path;
             }
         }
-        PathBuf::from("firmware/mos_console8.bin")
+
+        let directory = std::env::temp_dir()
+            .join("agon-libretro")
+            .join(env!("CARGO_PKG_VERSION"));
+        std::fs::create_dir_all(&directory).unwrap_or_else(|error| {
+            panic!(
+                "could not create bundled MOS directory {}: {error}",
+                directory.display()
+            )
+        });
+        let mos_path = directory.join("mos_console8.bin");
+        let map_path = directory.join("mos_console8.map");
+        for (path, bytes) in [(&mos_path, BUNDLED_MOS), (&map_path, BUNDLED_MOS_MAP)] {
+            let current_size = std::fs::metadata(path).map(|metadata| metadata.len()).ok();
+            if current_size != Some(bytes.len() as u64) {
+                std::fs::write(path, bytes).unwrap_or_else(|error| {
+                    panic!(
+                        "could not extract bundled MOS file {}: {error}",
+                        path.display()
+                    )
+                });
+            }
+        }
+        mos_path
     }
 
     fn sdcard_dir(content_path: Option<&Path>) -> PathBuf {

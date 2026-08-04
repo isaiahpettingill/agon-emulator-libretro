@@ -1,0 +1,57 @@
+.core-defs:
+  variables:
+    CORENAME: agon
+    GIT_SUBMODULE_STRATEGY: recursive
+
+.rust-target-install:
+  before_script:
+    - rustup target add ${RUST_TARGET}
+
+include:
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/rust-windows-x64.yml'
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/rust-linux-x64.yml'
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/rust-apple.yml'
+
+stages:
+  - build-prepare
+  - build-shared
+  - build-static
+
+libretro-build-windows-x64:
+  extends:
+    - .libretro-rust-windows-x64-default
+    - .core-defs
+    - .rust-target-install
+  variables:
+    RUST_TARGET: x86_64-pc-windows-gnu
+
+libretro-build-linux-x64:
+  extends:
+    - .libretro-rust-linux-x64-default
+    - .core-defs
+    - .rust-target-install
+  variables:
+    RUST_TARGET: x86_64-unknown-linux-gnu
+
+libretro-build-osx-x64:
+  extends:
+    - .libretro-rust-osx-x86_64-default
+    - .core-defs
+  variables:
+    RUST_TARGET: x86_64-apple-darwin
+  before_script:
+    - !reference [.libretro-rust-osx-x86_64-default, before_script]
+    - rustup target add ${RUST_TARGET}
+
+libretro-build-osx-arm64:
+  extends:
+    - .libretro-rust-osx-arm64-default
+    - .core-defs
+  variables:
+    RUST_TARGET: aarch64-apple-darwin
+  before_script:
+    - !reference [.libretro-rust-osx-arm64-default, before_script]
+    - rustup target add ${RUST_TARGET}
