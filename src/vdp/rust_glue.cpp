@@ -8,6 +8,8 @@
 #include "dispdrivers/vga16controller.h"
 #include "dispdrivers/vgabasecontroller.h"
 #include "userspace-vdp-gl/src/comdrivers/ps2controller.h"
+#include <chrono>
+#include <thread>
 
 // Arduino.h
 extern void delay(int ms);
@@ -146,7 +148,7 @@ extern "C" void vdp_setup() {
 
 extern "C" void vdp_loop() {
 	while (!is_fabgl_terminating) {
-		loop();
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 }
 

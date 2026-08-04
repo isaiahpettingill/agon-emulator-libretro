@@ -1,5 +1,8 @@
 all: check vdp cargo
 
+libretro: check
+	cargo build -r -p agon-libretro-core
+
 COMPILER := $(filter g++ clang,$(shell $(CXX) --version))
 UNAME_S := $(shell uname)
 
@@ -56,6 +59,7 @@ depends:
 	$(MAKE) -C src/vdp depends
 
 install:
+ifneq ($(filter install,$(MAKECMDGOALS)),)
 ifneq ($(shell ./fab-agon-emulator --prefix),)
 	install -D -t $(shell ./fab-agon-emulator --prefix)/share/fab-agon-emulator/ firmware/vdp_*.so
 	install -D -t $(shell ./fab-agon-emulator --prefix)/share/fab-agon-emulator/ firmware/mos_*.bin
@@ -67,4 +71,5 @@ ifneq ($(shell ./fab-agon-emulator --prefix),)
 	install -Dm644 -t $(shell ./fab-agon-emulator --prefix)/share/metainfo/ dist_scripts/io.github.tomm.fab_agon_emulator.metainfo.xml
 else
 	@echo "make install requires an install PREFIX (eg PREFIX=/usr/local make)"
+endif
 endif

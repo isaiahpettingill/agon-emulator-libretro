@@ -28,6 +28,7 @@ version = "1.2.2"
 dependencies = [
  "agon-ez80-emulator",
  "ez80",
+ "libloading",
  "libretro-backend",
 ]
 
@@ -320,8 +321,6 @@ dependencies = [
 [[package]]
 name = "libretro-backend"
 version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "667a71a6fdeec429bd88023eb7cc7b51264881b0cf9835431482a7c2f6e85d6e"
 dependencies = [
  "libc",
  "libretro-sys",

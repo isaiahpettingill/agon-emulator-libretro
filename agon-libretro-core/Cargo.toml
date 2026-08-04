@@ -12,4 +12,5 @@ crate-type = ["cdylib"]
 [dependencies]
 agon-ez80-emulator = { workspace = true }
 ez80 = "0.5.0"
-libretro-backend = "0.2.1"
+libretro-backend = { path = "../vendor/libretro-backend" }
+libloading = "0.8.0"

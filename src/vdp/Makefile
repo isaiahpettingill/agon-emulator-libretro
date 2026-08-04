@@ -1,6 +1,10 @@
 CXX ?= g++
 CFLAGS = -Wall -Werror=return-type -O2 -fmax-errors=1 -fdiagnostics-color=always -std=c++17 $(EXTRA_FLAGS) -DUSERSPACE -fPIC -g -I.. -I. -I./dispdrivers -I./userspace-vdp-gl/src -I./userspace-vdp-gl/src/userspace-platform -I./userspace-vdp-gl/src/dispdrivers -I./userspace-vdp-gl/src/userspace-platform/matrix
 OPTIONS = 
+LDFLAGS =
+ifeq ($(OS),Windows_NT)
+LDFLAGS += -static
+endif
 
 ELECTRONHAL_CFLAGS = -I./AgonElectronHAL/include 
 CONSOLE8_CFLAGS = -I./vdp-console8/video
@@ -25,16 +29,16 @@ userspace-vdp-gl/vdp_gl$(SUFFIX).a:
 	$(MAKE) -C userspace-vdp-gl/src
 
 test_main$(SUFFIX): $(OBJS) userspace-vdp-gl/vdp_gl$(SUFFIX).a test_main$(SUFFIX).o
-	$(CXX) $(CFLAGS) $(OBJS) -pthread test_main$(SUFFIX).o userspace-vdp-gl/src/vdp-gl$(SUFFIX).a -o test_main$(SUFFIX)
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) -pthread test_main$(SUFFIX).o userspace-vdp-gl/src/vdp-gl$(SUFFIX).a -o test_main$(SUFFIX)
 
 vdp_console8$(SUFFIX).so: $(OBJS) userspace-vdp-gl/vdp_gl$(SUFFIX).a vdp-console8$(SUFFIX).o
-	$(CXX) $(CFLAGS) $(CONSOLE8_CFLAGS) -shared $(OBJS) vdp-console8$(SUFFIX).o userspace-vdp-gl/src/vdp-gl$(SUFFIX).a -o vdp_console8$(SUFFIX).so
+	$(CXX) $(CFLAGS) $(CONSOLE8_CFLAGS) $(LDFLAGS) -shared $(OBJS) vdp-console8$(SUFFIX).o userspace-vdp-gl/src/vdp-gl$(SUFFIX).a -o vdp_console8$(SUFFIX).so
 
 vdp_quark$(SUFFIX).so: $(OBJS) userspace-vdp-gl/vdp_gl$(SUFFIX).a vdp-quark$(SUFFIX).o
-	$(CXX) $(CFLAGS) -shared $(OBJS) vdp-quark$(SUFFIX).o userspace-vdp-gl/src/vdp-gl$(SUFFIX).a -o vdp_quark$(SUFFIX).so
+	$(CXX) $(CFLAGS) $(LDFLAGS) -shared $(OBJS) vdp-quark$(SUFFIX).o userspace-vdp-gl/src/vdp-gl$(SUFFIX).a -o vdp_quark$(SUFFIX).so
 
 vdp_electron$(SUFFIX).so: $(OBJS) userspace-vdp-gl/vdp_gl$(SUFFIX).a vdp_electron$(SUFFIX).o
-	$(CXX) $(CFLAGS) $(ELECTRONHAL_CFLAGS) -shared $(OBJS) vdp_electron$(SUFFIX).o userspace-vdp-gl/src/vdp-gl$(SUFFIX).a -o vdp_electron$(SUFFIX).so
+	$(CXX) $(CFLAGS) $(ELECTRONHAL_CFLAGS) $(LDFLAGS) -shared $(OBJS) vdp_electron$(SUFFIX).o userspace-vdp-gl/src/vdp-gl$(SUFFIX).a -o vdp_electron$(SUFFIX).so
 
 clean:
 	-rm *.o

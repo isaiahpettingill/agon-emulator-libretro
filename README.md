@@ -10,6 +10,23 @@ for Linux (amd64), Windows (x64) and Mac (Intel & ARM).
 
 Otherwise, read the [guide to compiling Fab Agon Emulator](./docs/compiling.md)
 
+### Libretro core
+
+Initialize the submodules, then build the core and userspace VDP firmware:
+
+```sh
+git submodule update --init --recursive
+make libretro
+```
+
+On Windows, the build writes `agon_libretro.dll`, `agon_libretro.info`, and
+`vdp_console8.dll` to `target/release/`. Install the core DLL in RetroArch's
+`cores` directory and the info file in `info`. Copy `vdp_console8.dll`,
+`firmware/mos_console8.bin`, `firmware/mos_console8.map`, and the contents of
+`sdcard` to `system/agon`. The default SD card includes BBC BASIC and
+`ez80asm`. The core can be started without content to boot directly into MOS.
+
+
 ## Keyboard Shortcuts
 
 Emulator shortcuts are accessed with the *right ctrl*.
