@@ -36,7 +36,9 @@ platform VDP library (`vdp_console8.dll`, `vdp_console8.so`, or
 explicit paths.
 
 Libretro buildbot configuration is in `.gitlab-ci.yml`. It targets Windows
-x64, Linux x64, macOS x64, and macOS ARM64. The proposed `libretro-super`
+x64, Linux x64, Linux AArch64, Linux ARMv7 Thumb-2/NEON, macOS x64, and macOS
+ARM64. The two Linux ARM builds support 64-bit and 32-bit Raspberry Pi OS on
+the Raspberry Pi 3. The proposed `libretro-super`
 entries are documented in `docs/libretro-submission.md`.
 
 Bundled component copyrights and licenses are listed in

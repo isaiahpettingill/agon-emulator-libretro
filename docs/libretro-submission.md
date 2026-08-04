@@ -6,6 +6,8 @@ This repository is ready to be mirrored by Libretro and built with the shared Ru
 
 - Windows x64
 - Linux x64
+- Linux AArch64 (including 64-bit Raspberry Pi OS on Raspberry Pi 3)
+- Linux ARMv7 Thumb-2/NEON hard-float (including 32-bit Raspberry Pi OS on Raspberry Pi 3)
 - macOS x64
 - macOS ARM64
 
@@ -38,9 +40,9 @@ libretro_agon_git_submodules="yes"
 libretro_agon_build_makefile="Makefile.libretro"
 ```
 
-Add `agon` only to the Windows x64, Linux x64, macOS x64, and macOS ARM64 buildbot recipe lists. Other targets have not been tested.
+Add `agon` only to the Windows x64, Linux x64, Linux AArch64, Linux ARMv7 Thumb-2/NEON hard-float, macOS x64, and macOS ARM64 buildbot recipe lists. Other targets have not been tested.
 
-The source repository also has `.gitlab-ci.yml` entries for those four targets. Libretro must mirror the repository under `git.libretro.com` before those jobs can publish buildbot artifacts.
+The source repository also has `.gitlab-ci.yml` entries for those six targets. Libretro must mirror the repository under `git.libretro.com` before those jobs can publish buildbot artifacts.
 
 ## Local checks
 

@@ -25,6 +25,12 @@ else ifeq ($(platform),windows)
 	ifeq ($(ARCH),x86_64)
 		RUST_TARGET := x86_64-pc-windows-gnu
 	endif
+else ifneq (,$(filter unix linux,$(platform)))
+	ifneq (,$(filter arm64 aarch64,$(ARCH)))
+		RUST_TARGET := aarch64-unknown-linux-gnu
+	else ifneq (,$(filter armv7 thumb2 thumbv7neon,$(ARCH)))
+		RUST_TARGET := thumbv7neon-unknown-linux-gnueabihf
+	endif
 endif
 
 CARGO := cargo build -p agon-libretro-core

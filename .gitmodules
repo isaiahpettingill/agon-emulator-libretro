@@ -1,6 +1,7 @@
 [submodule "src/vdp/userspace-vdp-gl"]
 	path = src/vdp/userspace-vdp-gl
 	url = https://github.com/tomm/userspace-vdp-gl.git
+	ignore = untracked
 [submodule "sdcard"]
 	path = sdcard
 	url = https://github.com/tomm/popup-mos.git

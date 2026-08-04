@@ -3,24 +3,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-fn remove_target_files(directory: &Path, suffix: &str) {
-    let entries = fs::read_dir(directory).expect("failed to inspect VDP build directory");
-    for entry in entries {
-        let entry = entry.expect("failed to inspect VDP build entry");
-        let path = entry.path();
-        if path.is_dir() {
-            remove_target_files(&path, suffix);
-        } else if entry.file_name().to_string_lossy().contains(suffix) {
-            fs::remove_file(&path).expect("failed to remove a target-specific VDP build file");
-        }
-    }
-}
-
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=../src/vdp");
     println!("cargo:rerun-if-changed=../firmware/mos_console8.bin");
 
+    let target = env::var("TARGET").expect("Cargo target triple is set");
     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("Cargo target OS is set");
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").expect("Cargo target architecture is set");
     let suffix = format!(".libretro-{target_os}-{target_arch}");
@@ -30,6 +18,9 @@ fn main() {
     let mut make = Command::new(env::var_os("MAKE").unwrap_or_else(|| "make".into()));
     make.arg("-C").arg(vdp_dir).arg(&make_target);
     make.arg(format!("SUFFIX={suffix}"));
+    if target == "thumbv7neon-unknown-linux-gnueabihf" {
+        make.arg("EXTRA_FLAGS=-march=armv7-a -mthumb -mfpu=neon-vfpv4 -mfloat-abi=hard");
+    }
     if target_os == "windows" {
         make.arg("OS=Windows_NT");
     }
@@ -53,7 +44,6 @@ fn main() {
     let hash = bytes.iter().fold(0xcbf29ce484222325_u64, |hash, byte| {
         (hash ^ u64::from(*byte)).wrapping_mul(0x100000001b3)
     });
-    remove_target_files(vdp_dir, &suffix);
     println!("cargo:rustc-env=AGON_BUNDLED_VDP={}", bundled_vdp.display());
     println!("cargo:rustc-env=AGON_BUNDLED_VDP_HASH={hash:016x}");
 }
